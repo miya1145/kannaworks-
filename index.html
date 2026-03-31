@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>収支管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+        }
+
+        td input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        td input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .amount-input {
+            text-align: right;
+        }
+
+        .total-row {
+            background-color: #f9f9f9;
+            font-weight: 600;
+        }
+
+        .total-row td {
+            border-top: 2px solid #667eea;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .total-value {
+            text-align: right;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #5568d3;
+        }
+
+        .summary-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 40px;
+        }
+
+        .summary-section h2 {
+            color: white;
+            border: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .summary-item-label {
+            font-weight: 500;
+        }
+
+        .summary-item-value {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .profit-section {
+            border-top: 2px solid rgba(255,255,255,0.3);
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        .profit-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .profit-amount {
+            background: rgba(255,255,255,0.2);
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 28px;
+        }
+
+        .profit-amount.negative {
+            background: rgba(255, 100, 100, 0.3);
+        }
+
+        .add-row-btn {
+            margin-top: 10px;
+            background-color: #764ba2;
+        }
+
+        .add-row-btn:hover {
+            background-color: #653a82;
+        }
+
+        .delete-btn {
+            background-color: #ff6b6b;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background-color: #ee5a52;
+        }
+
+        .category-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .category-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 収支管理システム</h1>
+
+        <!-- ① 売上 -->
+        <div class="section">
+            <h2>① 売上</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>内容</th>
+                        <th>金額</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTable">
+                    <tr>
+                        <td><input type="date" value="2026-03-22"></td>
+                        <td><input type="text" value="WS参加費（星天）"></td>
+                        <td class="amount-input"><input type="number" value="30000" class="sales-amount"></td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="date" value="2026-03-22"></td>
+                        <td><input type="text" value="作品販売"></td>
+                        <td class="amount-input"><input type="number" value="10000" class="sales-amount"></td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="date" value="2026-03-31"></td>
+                        <td><input type="text" value="芸術祭請求書"></td>
+                        <td class="amount-input"><input type="number" value="120953" class="sales-amount"></td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="add-row-btn" onclick="addSalesRow()">+ 売上を追加</button>
+            <div class="total-row" style="display: flex; justify-content: space-between; margin-top: 10px; padding: 12px; background-color: #f0f0f0; border-radius: 4px;">
+                <span>売上合計</span>
+                <span id="salesTotal" class="total-value">160,953円</span>
+            </div>
+        </div>
+
+        <!-- ② 経費 -->
+        <div class="section">
+            <h2>② 経費</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>内容</th>
+                        <th>カテゴリ</th>
+                        <th>金額</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="expenseTable">
+                    <tr>
+                        <td><input type="date" value="2026-03-20"></td>
+                        <td><input type="text" value="ミモザ仕入れ"></td>
+                        <td><select class="category-select"><option>材料費</option><option>経費</option><option>交通費</option><option>その他</option></select></td>
+                        <td class="amount-input"><input type="number" value="2500" class="expense-amount"></td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="date" value="2026-03-20"></td>
+                        <td><input type="text" value="花材購入"></td>
+                        <td><select class="category-select"><option>材料費</option><option selected>経費</option><option>交通費</option><option>その他</option></select></td>
+                        <td class="amount-input"><input type="number" value="5000" class="expense-amount"></td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="date" value="2026-03-22"></td>
+                        <td><input type="text" value="ドリンク代"></td>
+                        <td><select class="category-select"><option>材料費</option><option selected>経費</option><option>交通費</option><option>その他</option></select></td>
+                        <td class="amount-input"><input type="number" value="5000" class="expense-amount"></td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="date" value="2026-03-22"></td>
+                        <td><input type="text" value="電車代"></td>
+                        <td><select class="category-select"><option>材料費</option><option>経費</option><option selected>交通費</option><option>その他</option></select></td>
+                        <td class="amount-input"><input type="number" value="500" class="expense-amount"></td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="add-row-btn" onclick="addExpenseRow()">+ 経費を追加</button>
+            <div class="total-row" style="display: flex; justify-content: space-between; margin-top: 10px; padding: 12px; background-color: #f0f0f0; border-radius: 4px;">
+                <span>経費合計</span>
+                <span id="expenseTotal" class="total-value">13,000円</span>
+            </div>
+        </div>
+
+        <!-- ③ 源泉徴収 -->
+        <div class="section">
+            <h2>③ 源泉徴収</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>内容</th>
+                        <th>金額</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="withholdingTable">
+                    <tr>
+                        <td><input type="text" value="芸術祭（制作費）"></td>
+                        <td class="amount-input"><input type="number" value="10414" class="withholding-amount"></td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="add-row-btn" onclick="addWithholdingRow()">+ 源泉徴収を追加</button>
+            <div class="total-row" style="display: flex; justify-content: space-between; margin-top: 10px; padding: 12px; background-color: #f0f0f0; border-radius: 4px;">
+                <span>源泉徴収合計</span>
+                <span id="withholdingTotal" class="total-value">10,414円</span>
+            </div>
+        </div>
+
+        <!-- ④ サマリー -->
+        <div class="summary-section">
+            <h2>④ 収支サマリー</h2>
+            <div class="summary-item">
+                <span class="summary-item-label">売上</span>
+                <span class="summary-item-value" id="summaryRevenue">160,953円</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-item-label">経費</span>
+                <span class="summary-item-value" id="summaryExpense">13,000円</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-item-label">源泉徴収</span>
+                <span class="summary-item-value" id="summaryWithholding">10,414円</span>
+            </div>
+            <div class="profit-section">
+                <div class="profit-display">
+                    <span>👉 利益（実際に手取り）</span>
+                    <span class="profit-amount" id="profitAmount">137,539円</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 合計計算関数
+        function calculateTotals() {
+            // 売上合計
+            const salesAmounts = document.querySelectorAll('.sales-amount');
+            let salesTotal = 0;
+            salesAmounts.forEach(input => {
+                salesTotal += parseFloat(input.value) || 0;
+            });
+
+            // 経費合計
+            const expenseAmounts = document.querySelectorAll('.expense-amount');
+            let expenseTotal = 0;
+            expenseAmounts.forEach(input => {
+                expenseTotal += parseFloat(input.value) || 0;
+            });
+
+            // 源泉徴収合計
+            const withholdingAmounts = document.querySelectorAll('.withholding-amount');
+            let withholdingTotal = 0;
+            withholdingAmounts.forEach(input => {
+                withholdingTotal += parseFloat(input.value) || 0;
+            });
+
+            // 利益計算
+            const profit = salesTotal - expenseTotal - withholdingTotal;
+
+            // 表示更新
+            document.getElementById('salesTotal').textContent = formatCurrency(salesTotal);
+            document.getElementById('expenseTotal').textContent = formatCurrency(expenseTotal);
+            document.getElementById('withholdingTotal').textContent = formatCurrency(withholdingTotal);
+            document.getElementById('summaryRevenue').textContent = formatCurrency(salesTotal);
+            document.getElementById('summaryExpense').textContent = formatCurrency(expenseTotal);
+            document.getElementById('summaryWithholding').textContent = formatCurrency(withholdingTotal);
+            
+            const profitElement = document.getElementById('profitAmount');
+            profitElement.textContent = formatCurrency(profit);
+            if (profit < 0) {
+                profitElement.classList.add('negative');
+            } else {
+                profitElement.classList.remove('negative');
+            }
+        }
+
+        // 数値フォーマット関数
+        function formatCurrency(value) {
+            return Math.round(value).toLocaleString('ja-JP') + '円';
+        }
+
+        // 行を追加する関数
+        function addSalesRow() {
+            const table = document.getElementById('salesTable');
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td><input type="date"></td>
+                <td><input type="text"></td>
+                <td class="amount-input"><input type="number" value="0" class="sales-amount" oninput="calculateTotals()"></td>
+                <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+            `;
+            calculateTotals();
+        }
+
+        function addExpenseRow() {
+            const table = document.getElementById('expenseTable');
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td><input type="date"></td>
+                <td><input type="text"></td>
+                <td><select class="category-select"><option>材料費</option><option>経費</option><option>交通費</option><option>その他</option></select></td>
+                <td class="amount-input"><input type="number" value="0" class="expense-amount" oninput="calculateTotals()"></td>
+                <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+            `;
+            calculateTotals();
+        }
+
+        function addWithholdingRow() {
+            const table = document.getElementById('withholdingTable');
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td><input type="text"></td>
+                <td class="amount-input"><input type="number" value="0" class="withholding-amount" oninput="calculateTotals()"></td>
+                <td><button class="delete-btn" onclick="deleteRow(this)">削除</button></td>
+            `;
+            calculateTotals();
+        }
+
+        // 行を削除する関数
+        function deleteRow(button) {
+            button.closest('tr').remove();
+            calculateTotals();
+        }
+
+        // 初期計算
+        document.addEventListener('DOMContentLoaded', () => {
+            // すべての入力にイベントリスナーを追加
+            document.querySelectorAll('input, select').forEach(element => {
+                element.addEventListener('input', calculateTotals);
+                element.addEventListener('change', calculateTotals);
+            });
+            calculateTotals();
+        });
+    </script>
+</body>
+</html>
